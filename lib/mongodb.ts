@@ -30,7 +30,7 @@ if (!global.mongoose) {
 async function connectDB(): Promise<typeof mongoose> {
   // Return existing connection if already established
   // Validate that the MongoDB URI is defined
-  
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -38,11 +38,11 @@ async function connectDB(): Promise<typeof mongoose> {
   // Return existing promise if connection is in progress
   if (!cached.promise) {
     // Validate that the MongoDB URI is defined
-if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
-  );
-}
+    if (!MONGODB_URI) {
+      throw new Error(
+        "Please define the MONGODB_URI environment variable inside .env.local",
+      );
+    }
     const opts = {
       bufferCommands: false, // Disable buffering to fail fast if not connected
     };
