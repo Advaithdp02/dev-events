@@ -111,7 +111,7 @@ const EventSchema = new Schema<IEvent>(
 EventSchema.index({ slug: 1 });
 
 // Pre-save hook for slug generation, date and time normalization
-EventSchema.pre('save', function (next) {
+EventSchema.pre('save', function () {
   const event = this as IEvent;
 
   // Generate slug only if title is new or modified
@@ -127,16 +127,12 @@ EventSchema.pre('save', function (next) {
 
   // Normalize date to ISO format (YYYY-MM-DD) if modified
   if (event.isModified('date')) {
-    try {
-      const parsedDate = new Date(event.date);
-      if (isNaN(parsedDate.getTime())) {
-        return next(new Error('Invalid date format'));
-      }
-      // Store in ISO format (YYYY-MM-DD)
-      event.date = parsedDate.toISOString().split('T')[0];
-    } catch (error) {
-      return next(new Error('Invalid date format'));
+    const parsedDate = new Date(event.date);
+    if (isNaN(parsedDate.getTime())) {
+      throw new Error('Invalid date format');
     }
+    // Store in ISO format (YYYY-MM-DD)
+    event.date = parsedDate.toISOString().split('T')[0];
   }
 
   // Normalize time to HH:MM format if modified
@@ -162,11 +158,9 @@ EventSchema.pre('save', function (next) {
         event.time = `${hours.toString().padStart(2, '0')}:${minutes}`;
       }
     } else {
-      return next(new Error('Invalid time format. Use HH:MM or HH:MM AM/PM'));
+      throw new Error('Invalid time format. Use HH:MM or HH:MM AM/PM');
     }
   }
-
-  next();
 });
 
 // Prevent model recompilation in development (Next.js hot reload)

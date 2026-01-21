@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Define TypeScript interface for the cached connection
 interface MongooseCache {
@@ -14,13 +14,6 @@ declare global {
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// Validate that the MongoDB URI is defined
-if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
-  );
-}
-
 // Initialize the cache on the global object to persist across hot reloads in development
 let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
@@ -31,25 +24,35 @@ if (!global.mongoose) {
 /**
  * Establishes a connection to MongoDB using Mongoose.
  * Caches the connection to prevent multiple connections during development hot reloads.
- * 
+ *
  * @returns Promise that resolves to the Mongoose instance
  */
 async function connectDB(): Promise<typeof mongoose> {
   // Return existing connection if already established
+  // Validate that the MongoDB URI is defined
+  
   if (cached.conn) {
     return cached.conn;
   }
 
   // Return existing promise if connection is in progress
   if (!cached.promise) {
+    // Validate that the MongoDB URI is defined
+if (!MONGODB_URI) {
+  throw new Error(
+    'Please define the MONGODB_URI environment variable inside .env.local'
+  );
+}
     const opts = {
       bufferCommands: false, // Disable buffering to fail fast if not connected
     };
 
     // Create new connection promise
-    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongooseInstance) => {
-      return mongooseInstance;
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI as string, opts)
+      .then((mongooseInstance) => {
+        return mongooseInstance;
+      });
   }
 
   try {
